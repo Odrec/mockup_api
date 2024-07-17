@@ -1,6 +1,5 @@
 import logging
-from fastapi import FastAPI, Depends, HTTPException, Security
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import FastAPI, Depends, HTTPException, Security, Request
 from fastapi.responses import HTMLResponse
 from typing import List
 from schemas import QuotaGet, QuotaUpdate, Metadata
@@ -14,9 +13,9 @@ app = FastAPI()
 
 # Endpoint to access the tool (simulates JWT token validation and session creation)
 @app.get("/access-tool", response_class=HTMLResponse)
-async def access_tool(token: HTTPAuthorizationCredentials = Security(HTTPBearer())):
-    logging.debug(f"Token received for tool access: {token.credentials}")
-    user = verify_token(token.credentials)
+async def access_tool(token: str):
+    logging.debug(f"Token received for tool access: {token}")
+    user = verify_token(token)
     return f"""
     <html>
         <head>

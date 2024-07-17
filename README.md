@@ -10,7 +10,7 @@
 
 2. Authenticate
 
-```curl -X GET "http://127.0.0.1:8000/access-tool" -H "Authorization: Bearer <jwt_token>"```
+```curl -X GET "http://127.0.0.1:8000/access-tool?token=<jwt_token>"```
 
 # Testing with curl
 1. Get Metadata

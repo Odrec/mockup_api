@@ -65,6 +65,30 @@
             "course_id": "course-123",
             "used": 0,
             "type": "token"
+        },
+        {
+            "limit": 1000,
+            "scope": "total",
+            "feature": null,
+            "user_id": null,
+            "used": 0,
+            "type": "token"
+        },
+        {
+            "limit": 100,
+            "scope": "user",
+            "feature": null,
+            "user_id": null,
+            "used": 0,
+            "type": "token"
+        },
+        {
+            "limit": 500,
+            "scope": "total",
+            "feature": "chatgpt-4",
+            "user_id": null,
+            "used": 0,
+            "type": "token"
         }
     ]
 }
