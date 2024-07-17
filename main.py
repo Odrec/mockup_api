@@ -4,7 +4,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import List
 from schemas import QuotaGet, QuotaUpdate, Metadata
 from database import get_all_quotas, update_quotas
-from utils import verify_token, verify_api_key, get_current_user
+from utils import verify_token, verify_api_key
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
