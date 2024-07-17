@@ -10,7 +10,7 @@
 
 2. Authenticate
 
-```curl -X GET "http://127.0.0.1:8000/access-tool?token=<jwt_token>"```
+```curl -X POST "http://127.0.0.1:8000/access-tool" -H "Content-Type: application/json" -d '{"token": "YOUR_GENERATED_JWT_TOKEN"}'```
 
 # Testing with curl
 1. Get Metadata
