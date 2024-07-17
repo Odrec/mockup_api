@@ -2,11 +2,6 @@ from pydantic import BaseModel
 from typing import List, Optional, Dict
 
 
-class TranslatedString(BaseModel):
-    language: str
-    text: str
-
-
 class QuotaDefinition(BaseModel):
     type: Optional[str]
     description: Dict[str, str]
@@ -17,7 +12,7 @@ class QuotaDefinition(BaseModel):
 
 class QuotaGet(BaseModel):
     limit: int
-    used: int
+    used: Optional[int] = None
     type: Optional[str]
     scope: str
     feature: Optional[str] = None
@@ -38,3 +33,6 @@ class Metadata(BaseModel):
     description: Dict[str, str]
     title: Dict[str, str]
     supported_quotas: List[QuotaDefinition]
+
+    class Config:
+        arbitrary_types_allowed = True

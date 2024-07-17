@@ -23,25 +23,26 @@ async def access_tool(token: HTTPAuthorizationCredentials = Security(HTTPBearer(
 @app.get("/metadata", response_model=Metadata, dependencies=[Depends(verify_api_key)])
 async def get_metadata():
     return {
-        "tool_url": "https://tool.example.com",
-        "quota_url": "https://tool.example.com/api/quota",
-        "image_url": "https://tool.example.com/image.png",
-        "description": {"en": "This is an AI tool"},
-        "title": {"en": "AI Toolbox"},
+        "tool_url": "https://kiwi.de",
+        "quota_url": "https://kiwi.de/api/quota",
+        "image_url": "https://kiwi.de/static/tool.png",
+        "description": {
+            "de-DE": "Beschreibung für ein Test-Tool",
+            "en-GB": "Description for a test tool"
+        },
+        "title": {
+            "de-DE": "Titel des Test-Tools",
+            "en-GB": "Test Tool Title"
+        },
         "supported_quotas": [
             {
                 "type": "token",
-                "description": {"en": "Token quota"},
-                "reset_interval": "monthly",
-                "scope": "total",
-                "feature": None
-            },
-            {
-                "type": "time",
-                "description": {"en": "Time quota"},
-                "reset_interval": "monthly",
-                "scope": "user",
-                "feature": None
+                "description": {
+                    "de-DE": "Token Beispiel",
+                    "en-GB": "Token example"
+                },
+                "reset_interval": "daily",
+                "scope": "total"
             }
         ]
     }
@@ -51,7 +52,7 @@ async def get_metadata():
 def validate_quota(quota):
     return {
         "limit": quota.get("limit"),
-        "used": quota.get("used", 0),
+        "used": quota.get("used", None),
         "type": quota.get("type", "token"),  # Default type to "token" if missing
         "scope": quota.get("scope"),
         "feature": quota.get("feature", None),
