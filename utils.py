@@ -1,4 +1,4 @@
-from fastapi import HTTPException, Security, Depends
+from fastapi import HTTPException, Header, Security
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
 from datetime import datetime, timedelta, timezone
@@ -12,8 +12,8 @@ load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
+API_KEY = os.getenv("API_KEY")
 
-# Setting up the logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 oauth2_scheme = HTTPBearer()
@@ -46,6 +46,11 @@ def verify_token(token: str):
     except JWTError as e:
         logging.error(f"JWT validation error: {e}")
         raise credentials_exception
+
+
+def verify_api_key(api_key: Optional[str] = Header(None, alias="api-key")):
+    if api_key != API_KEY:
+        raise HTTPException(status_code=403, detail="Invalid API Key")
 
 
 def get_current_user(token: HTTPAuthorizationCredentials = Security(oauth2_scheme)):

@@ -4,18 +4,24 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import List
 from schemas import QuotaGet, QuotaUpdate, Metadata
 from database import get_all_quotas, update_quotas
-from utils import verify_token, get_current_user
+from utils import verify_token, verify_api_key, get_current_user
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 app = FastAPI()
 
 
-# Endpoint to get metadata
-@app.get("/metadata", response_model=Metadata)
-async def get_metadata(token: HTTPAuthorizationCredentials = Security(HTTPBearer())):
-    logging.debug(f"Token received for /metadata: {token.credentials}")
-    verify_token(token.credentials)
+# Endpoint to access the tool (simulates JWT token validation and session creation)
+@app.get("/access-tool")
+async def access_tool(token: HTTPAuthorizationCredentials = Security(HTTPBearer())):
+    logging.debug(f"Token received for tool access: {token.credentials}")
+    user = verify_token(token.credentials)
+    return {"message": f"Welcome to the tool, {user['name']}!"}
+
+
+# Endpoint to get metadata (API Key protected)
+@app.get("/metadata", response_model=Metadata, dependencies=[Depends(verify_api_key)])
+async def get_metadata():
     return {
         "tool_url": "https://tool.example.com",
         "quota_url": "https://tool.example.com/api/quota",
@@ -53,18 +59,16 @@ def validate_quota(quota):
     }
 
 
-# Endpoint to get quotas
-@app.get("/quota", response_model=List[QuotaGet])
-async def get_quotas(token: HTTPAuthorizationCredentials = Security(HTTPBearer())):
-    logging.debug(f"Token received for /quota: {token.credentials}")
-    user = verify_token(token.credentials)
+# Endpoint to get quotas (API Key protected)
+@app.get("/quota", response_model=List[QuotaGet], dependencies=[Depends(verify_api_key)])
+async def get_quotas():
     quotas = get_all_quotas()
     validated_quotas = [validate_quota(q) for q in quotas]
     return validated_quotas
 
 
-# Endpoint to update quotas
-@app.put("/quota", dependencies=[Depends(get_current_user)])
+# Endpoint to update quotas (API Key protected)
+@app.put("/quota", dependencies=[Depends(verify_api_key)])
 async def put_quotas(quotas: List[QuotaUpdate]):
     all_quotas = get_all_quotas()
     for quota in quotas:
@@ -76,12 +80,9 @@ async def put_quotas(quotas: List[QuotaUpdate]):
     return {"message": "Quotas updated successfully"}
 
 
-# Endpoint to get quota for a specific course with user quotas option
-@app.get("/quota/course/{course_id}", response_model=List[QuotaGet])
-async def get_course_quota(course_id: str, with_user_quotas: bool = False,
-                           token: HTTPAuthorizationCredentials = Security(HTTPBearer())):
-    logging.debug(f"Token received for /quota/course/{course_id}: {token.credentials}")
-    user = verify_token(token.credentials)
+# Endpoint to get quota for a specific course with user quotas option (API Key protected)
+@app.get("/quota/course/{course_id}", response_model=List[QuotaGet], dependencies=[Depends(verify_api_key)])
+async def get_course_quota(course_id: str, with_user_quotas: bool = False):
     quotas = get_all_quotas()
     course_quotas = [validate_quota(q) for q in quotas if
                      q['scope'] in ['course', 'course-user'] and q.get('course_id') == course_id]
@@ -94,8 +95,8 @@ async def get_course_quota(course_id: str, with_user_quotas: bool = False,
     return course_quotas
 
 
-# Endpoint to update quota for a course and course members
-@app.put("/quota/course/{course_id}", dependencies=[Depends(get_current_user)])
+# Endpoint to update quota for a course and course members (API Key protected)
+@app.put("/quota/course/{course_id}", dependencies=[Depends(verify_api_key)])
 async def put_course_quota(course_id: str, quotas: List[QuotaUpdate]):
     all_quotas = get_all_quotas()
     for quota in quotas:
@@ -113,22 +114,17 @@ async def put_course_quota(course_id: str, quotas: List[QuotaUpdate]):
     return {"message": "Course quotas updated successfully"}
 
 
-# Endpoint to get quota for all course members
-@app.get("/quota/course/{course_id}/user", response_model=List[QuotaGet])
-async def get_course_users_quota(course_id: str, token: HTTPAuthorizationCredentials = Security(HTTPBearer())):
-    logging.debug(f"Token received for /quota/course/{course_id}/user: {token.credentials}")
-    user = verify_token(token.credentials)
+# Endpoint to get quota for all course members (API Key protected)
+@app.get("/quota/course/{course_id}/user", response_model=List[QuotaGet], dependencies=[Depends(verify_api_key)])
+async def get_course_users_quota(course_id: str):
     quotas = get_all_quotas()
     user_quotas = [validate_quota(q) for q in quotas if q['scope'] == 'course-user' and q.get('course_id') == course_id]
     return user_quotas
 
 
-# Endpoint to get quota for a specific course member
-@app.get("/quota/course/{course_id}/user/{user_id}", response_model=QuotaGet)
-async def get_course_user_quota(course_id: str, user_id: str,
-                                token: HTTPAuthorizationCredentials = Security(HTTPBearer())):
-    logging.debug(f"Token received for /quota/course/{course_id}/user/{user_id}: {token.credentials}")
-    user = verify_token(token.credentials)
+# Endpoint to get quota for a specific course member (API Key protected)
+@app.get("/quota/course/{course_id}/user/{user_id}", response_model=QuotaGet, dependencies=[Depends(verify_api_key)])
+async def get_course_user_quota(course_id: str, user_id: str):
     quotas = get_all_quotas()
     for quota in quotas:
         if quota['scope'] == 'course-user' and quota.get('course_id') == course_id and quota.get('user_id') == user_id:
@@ -136,8 +132,8 @@ async def get_course_user_quota(course_id: str, user_id: str,
     raise HTTPException(status_code=404, detail="Course user quota not found")
 
 
-# Endpoint to update quota for a specific course member
-@app.put("/quota/course/{course_id}/user/{user_id}", dependencies=[Depends(get_current_user)])
+# Endpoint to update quota for a specific course member (API Key protected)
+@app.put("/quota/course/{course_id}/user/{user_id}", dependencies=[Depends(verify_api_key)])
 async def put_course_user_quota(course_id: str, user_id: str, quota: QuotaUpdate):
     quotas = get_all_quotas()
     quota_dict = quota.dict()
