@@ -1,6 +1,7 @@
 import logging
 from fastapi import FastAPI, Depends, HTTPException, Security
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.responses import HTMLResponse
 from typing import List
 from schemas import QuotaGet, QuotaUpdate, Metadata
 from database import get_all_quotas, update_quotas
@@ -12,11 +13,20 @@ app = FastAPI()
 
 
 # Endpoint to access the tool (simulates JWT token validation and session creation)
-@app.get("/access-tool")
+@app.get("/access-tool", response_class=HTMLResponse)
 async def access_tool(token: HTTPAuthorizationCredentials = Security(HTTPBearer())):
     logging.debug(f"Token received for tool access: {token.credentials}")
     user = verify_token(token.credentials)
-    return {"message": f"Welcome to the tool, {user['name']}!"}
+    return f"""
+    <html>
+        <head>
+            <title>KIWI-Tool</title>
+        </head>
+        <body>
+            <h1>Welcome to the tool, {user['name']}!</h1>
+        </body>
+    </html>
+    """
 
 
 # Endpoint to get metadata (API Key protected)
