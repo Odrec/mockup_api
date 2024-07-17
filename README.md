@@ -1,3 +1,7 @@
+# Running the service
+
+```uvicorn main:app --reload```
+
 # Testing with curl
 1. Get Metadata
 
