@@ -2,6 +2,16 @@
 
 ```uvicorn main:app --reload```
 
+# Simulate tool authentication
+
+1. Generate JWT token
+
+```python test_jwt.py```
+
+2. Authenticate
+
+```curl -X GET "http://127.0.0.1:8000/access-tool" -H "Authorization: Bearer <jwt_token>"```
+
 # Testing with curl
 1. Get Metadata
 
