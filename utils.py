@@ -39,6 +39,5 @@ def verify_token(token: str):
 def verify_api_key(authorization: Optional[str] = Header(None)):
     if not authorization:
         raise HTTPException(status_code=403, detail="Missing API Key")
-    token = authorization.split(" ")[1]
-    if token != API_KEY:
+    if authorization != f'Bearer {API_KEY}':
         raise HTTPException(status_code=403, detail="Invalid API Key")
