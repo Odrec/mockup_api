@@ -18,17 +18,6 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(leve
 oauth2_scheme = HTTPBearer()
 
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
-    to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.now(timezone.utc) + expires_delta
-    else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
-
-
 def verify_token(token: str):
     credentials_exception = HTTPException(
         status_code=403, detail="Could not validate credentials"
@@ -53,7 +42,3 @@ def verify_api_key(authorization: Optional[str] = Header(None)):
     token = authorization.split(" ")[1]
     if token != API_KEY:
         raise HTTPException(status_code=403, detail="Invalid API Key")
-
-
-def get_current_user(token: HTTPAuthorizationCredentials = Security(oauth2_scheme)):
-    return verify_token(token.credentials)
