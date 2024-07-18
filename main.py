@@ -1,3 +1,4 @@
+import os
 import logging
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.responses import HTMLResponse
@@ -17,7 +18,7 @@ class Token(BaseModel):
 
 
 # Endpoint to access the tool (simulates JWT token validation and session creation)
-@app.post("/access-tool", response_class=HTMLResponse)
+@app.post("/", response_class=HTMLResponse)
 async def access_tool(token: Token):
     logging.debug(f"Token received for tool access: {token.token}")
     user = verify_token(token.token)
@@ -36,10 +37,11 @@ async def access_tool(token: Token):
 # Endpoint to get metadata (API Key protected)
 @app.get("/metadata", response_model=Metadata, dependencies=[Depends(verify_api_key)])
 async def get_metadata():
+    base_url = os.getenv("HOST_URL")  # Read the environment variable for host URL
     return {
-        "tool_url": "https://kiwi.de",
-        "quota_url": "https://kiwi.de/api/quota",
-        "image_url": "https://kiwi.de/static/tool.png",
+        "tool_url": f"{base_url}",
+        "quota_url": f"{base_url}/api/quota",
+        "image_url": f"{base_url}/static/tool.png",
         "description": {
             "de-DE": "Beschreibung für ein Test-Tool",
             "en-GB": "Description for a test tool"
