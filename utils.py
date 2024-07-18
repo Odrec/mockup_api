@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(leve
 
 oauth2_scheme = HTTPBearer()
 
-
+# Dennis: Remove as not used?
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
     if expires_delta:
@@ -35,6 +35,8 @@ def verify_token(token: str):
         status_code=403, detail="Could not validate credentials"
     )
     try:
+        # Dennis: We should support a range of algorithms and use the algorithm info from the jwt header.
+        # Dennis: Probably we should verify that the payload contains all data
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         logging.debug(f"Decoded payload: {payload}")
         username: str = payload.get("sub")
@@ -55,6 +57,6 @@ def verify_api_key(authorization: Optional[str] = Header(None)):
     if token != API_KEY:
         raise HTTPException(status_code=403, detail="Invalid API Key")
 
-
+# Dennis: Remove as not used?
 def get_current_user(token: HTTPAuthorizationCredentials = Security(oauth2_scheme)):
     return verify_token(token.credentials)

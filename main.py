@@ -17,6 +17,7 @@ class Token(BaseModel):
 
 
 # Endpoint to access the tool (simulates JWT token validation and session creation)
+# Dennis: I recommend to use the root path "/"
 @app.post("/access-tool", response_class=HTMLResponse)
 async def access_tool(token: Token):
     logging.debug(f"Token received for tool access: {token.token}")
@@ -36,6 +37,7 @@ async def access_tool(token: Token):
 # Endpoint to get metadata (API Key protected)
 @app.get("/metadata", response_model=Metadata, dependencies=[Depends(verify_api_key)])
 async def get_metadata():
+    # Dennis: We should add an environment variable for the host to deliver the correct urls
     return {
         "tool_url": "https://kiwi.de",
         "quota_url": "https://kiwi.de/api/quota",
@@ -77,6 +79,7 @@ def validate_quota(quota):
 # Endpoint to get quotas (API Key protected)
 @app.get("/quota", response_model=List[QuotaGet], dependencies=[Depends(verify_api_key)])
 async def get_quotas():
+    # Dennis: Don't work as expected. This routes simply delivers all quotas in the json file.
     quotas = get_all_quotas()
     validated_quotas = [validate_quota(q) for q in quotas]
     return validated_quotas
@@ -88,8 +91,11 @@ async def put_quotas(quotas: List[QuotaUpdate]):
     all_quotas = get_all_quotas()
     for quota in quotas:
         quota_dict = quota.dict()
+        # Dennis: Some quotas don't have a used value as they are common quotas like course quota
         quota_dict["used"] = 0  # Initialize used to 0 for new quotas
+        # Dennis: We didn't specify a default type. It shouldn't be set by the toolbox.
         quota_dict["type"] = quota_dict.get("type", "token")  # Default type
+        # Dennis: Append doesn't seem right. The quota should be replaced if a quota with scope and feature already exists.
         all_quotas.append(quota_dict)
     update_quotas(all_quotas)
     return {"message": "Quotas updated successfully"}
@@ -97,8 +103,9 @@ async def put_quotas(quotas: List[QuotaUpdate]):
 
 # Endpoint to get quota for a specific course with user quotas option (API Key protected)
 @app.get("/quota/course/{course_id}", response_model=List[QuotaGet], dependencies=[Depends(verify_api_key)])
-async def get_course_quota(course_id: str, with_user_quotas: bool = False):
+async def get_course_quota(course_id: str, with_user_quotas: bool = False):  # Dennis: Parameter with_user_quotas is not specified.
     quotas = get_all_quotas()
+    # Dennis: Loads individual course user quotas
     course_quotas = [validate_quota(q) for q in quotas if
                      q['scope'] in ['course', 'course-user'] and q.get('course_id') == course_id]
     if not course_quotas:
@@ -119,11 +126,14 @@ async def put_course_quota(course_id: str, quotas: List[QuotaUpdate]):
         quota_dict['course_id'] = course_id
         updated = False
         for idx, q in enumerate(all_quotas):
+            # Dennis: Check for feature is missing
+            # Dennis: Only scopes "course" and "course-user" are supported (validation check)
             if q['scope'] == quota_dict['scope'] and q.get('course_id') == course_id:
                 all_quotas[idx] = quota_dict
                 updated = True
                 break
         if not updated:
+            # Dennis: Validation check is missing for scope and feature
             all_quotas.append(quota_dict)
     update_quotas(all_quotas)
     return {"message": "Course quotas updated successfully"}
@@ -133,6 +143,7 @@ async def put_course_quota(course_id: str, quotas: List[QuotaUpdate]):
 @app.get("/quota/course/{course_id}/user", response_model=List[QuotaGet], dependencies=[Depends(verify_api_key)])
 async def get_course_users_quota(course_id: str):
     quotas = get_all_quotas()
+    # Dennis: Also loads the common course user quota for this course
     user_quotas = [validate_quota(q) for q in quotas if q['scope'] == 'course-user' and q.get('course_id') == course_id]
     return user_quotas
 
@@ -146,7 +157,7 @@ async def get_course_user_quota(course_id: str, user_id: str):
             return validate_quota(quota)
     raise HTTPException(status_code=404, detail="Course user quota not found")
 
-
+# Dennis: This endpoint is discarded
 # Endpoint to update quota for a specific course member (API Key protected)
 @app.put("/quota/course/{course_id}/user/{user_id}", dependencies=[Depends(verify_api_key)])
 async def put_course_user_quota(course_id: str, user_id: str, quota: QuotaUpdate):
