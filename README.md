@@ -73,14 +73,3 @@ curl -X PUT "http://127.0.0.1:8000/quota/course/course-123" -H "Authorization: B
 8. Get Quota for a Specific Course Member
 
 ```curl -X GET "http://127.0.0.1:8000/quota/course/course-123/user/user-456" -H "Authorization: Bearer mysecureapikey"```
-
-9. Update Quota for a Specific Course Member
-
-```
-curl -X PUT "http://127.0.0.1:8000/quota/course/course-123/user/user-456" -H "Authorization: Bearer mysecureapikey" -H "Content-Type: application/json" -d '
-{
-    "limit": 100,
-    "scope": "course-user"
-}
-'
-```
