@@ -37,6 +37,3 @@ class Metadata(BaseModel):
     description: Dict[str, str]
     title: Dict[str, str]
     supported_quotas: List[QuotaDefinition]
-
-    class Config:
-        arbitrary_types_allowed = True
