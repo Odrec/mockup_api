@@ -1,8 +1,7 @@
 import os
 import logging
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Form
 from fastapi.responses import HTMLResponse
-from pydantic import BaseModel
 from typing import List
 from schemas import QuotaGet, QuotaUpdate, Metadata
 from database import get_all_quotas, update_quotas
@@ -13,15 +12,11 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(leve
 app = FastAPI()
 
 
-class Token(BaseModel):
-    token: str
-
-
 # Endpoint to access the tool (simulates JWT token validation and session creation)
 @app.post("/", response_class=HTMLResponse)
-async def access_tool(token: Token):
-    logging.debug(f"Token received for tool access: {token.token}")
-    user = verify_token(token.token)
+async def access_tool(token: str = Form()):
+    logging.debug(f"Token received for tool access: {token}")
+    user = verify_token(token)
     return f"""
     <html>
         <head>
