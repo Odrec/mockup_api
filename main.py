@@ -1,6 +1,6 @@
 import os
 import logging
-from fastapi import FastAPI, Depends, HTTPException, Form
+from fastapi import FastAPI, Depends, HTTPException, Form, Query
 from fastapi.responses import HTMLResponse
 from typing import List
 from schemas import QuotaGet, QuotaUpdate, Metadata
@@ -103,7 +103,7 @@ async def put_quotas(quotas: List[QuotaUpdate]):
 
 # Endpoint to get quota for a specific course with user quotas option (API Key protected)
 @app.get("/quota/course/{course_id}", response_model=List[QuotaGet], dependencies=[Depends(verify_api_key)])
-async def get_course_quota(course_id: str, with_user_quotas: bool = False):
+async def get_course_quota(course_id: str, with_user_quotas: bool = Query(default=False)):
     quotas = get_all_quotas()
     course_quotas = [validate_quota(q) for q in quotas if
                      q['scope'] in ['course', 'course-user'] and q.get('course_id') == course_id]
