@@ -61,11 +61,16 @@ async def get_metadata():
 
 # Helper function to ensure quotas have all fields
 def validate_quota(quota):
+    valid_scopes = {"user", "course", "course-user", "total"}
+    scope = quota.get("scope")
+    if scope not in valid_scopes:
+        raise ValueError(f"Invalid scope value: {scope}. Expected one of {valid_scopes}")
+
     return {
         "limit": quota.get("limit"),
         "used": quota.get("used", None),
         "type": quota.get("type", "token"),  # Default type to "token" if missing
-        "scope": quota.get("scope"),
+        "scope": scope,
         "feature": quota.get("feature", None),
         "user_id": quota.get("user_id", None)
     }
@@ -74,9 +79,13 @@ def validate_quota(quota):
 # Endpoint to get quotas (API Key protected)
 @app.get("/quota", response_model=List[QuotaGet], dependencies=[Depends(verify_api_key)])
 async def get_quotas():
-    quotas = get_all_quotas()
-    validated_quotas = [validate_quota(q) for q in quotas]
-    return validated_quotas
+    try:
+        quotas = get_all_quotas()
+        validated_quotas = [validate_quota(q) for q in quotas]
+        return validated_quotas
+    except ValueError as e:
+        logging.error(f"Validation error: {e}")
+        raise HTTPException(status_code=422, detail=str(e))
 
 
 # Endpoint to update quotas (API Key protected)

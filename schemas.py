@@ -1,7 +1,6 @@
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Literal, TypeAlias
 
-
 QuotaScope: TypeAlias = Literal["user", "course", "course-user", "total"]
 ResetIntervalDefinition: TypeAlias = Literal["daily", "weekly", "monthly", "semester"]
 
@@ -27,7 +26,6 @@ class QuotaUpdate(BaseModel):
     limit: int
     scope: QuotaScope
     feature: Optional[str] = None
-    user_id: Optional[str] = None
 
 
 class Metadata(BaseModel):
