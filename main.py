@@ -142,24 +142,3 @@ async def get_course_user_quota(course_id: str, user_id: str):
         if quota['scope'] == 'course-user' and quota.get('course_id') == course_id and quota.get('user_id') == user_id:
             return validate_quota(quota)
     raise HTTPException(status_code=404, detail="Course user quota not found")
-
-
-# Endpoint to update quota for a specific course member (API Key protected)
-@app.put("/quota/course/{course_id}/user/{user_id}", dependencies=[Depends(verify_api_key)])
-async def put_course_user_quota(course_id: str, user_id: str, quota: QuotaUpdate):
-    quotas = get_all_quotas()
-    quota_dict = quota.dict()
-    quota_dict['course_id'] = course_id
-    quota_dict['user_id'] = user_id
-    quota_dict['used'] = 0
-    quota_dict['type'] = "token"
-    quota_updated = False
-    for idx, q in enumerate(quotas):
-        if q['scope'] == 'course-user' and q.get('course_id') == course_id and q.get('user_id') == user_id:
-            quotas[idx] = quota_dict
-            quota_updated = True
-            break
-    if not quota_updated:
-        quotas.append(quota_dict)
-    update_quotas(quotas)
-    return {"message": "Course user quota updated successfully"}
