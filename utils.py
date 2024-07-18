@@ -8,8 +8,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 SECRET_KEY = os.getenv("SECRET_KEY")
-ALGORITHM = os.getenv("ALGORITHM")
 API_KEY = os.getenv("API_KEY")
+SUPPORTED_ALGORITHMS = set(os.getenv("SUPPORTED_ALGORITHMS", "").split(','))
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
@@ -21,7 +21,18 @@ def verify_token(token: str) -> Dict:
     required_fields = {"sub", "name", "iat", "exp", "context-role"}
 
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        # Decode the JWT header
+        header = jwt.get_unverified_header(token)
+        logging.debug(f"JWT header: {header}")
+
+        algorithm = header.get("alg")
+
+        if algorithm not in SUPPORTED_ALGORITHMS:
+            logging.error(f"Unsupported signing algorithm: {algorithm}")
+            raise credentials_exception
+
+        # Decode the JWT payload
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[algorithm])
         logging.debug(f"Decoded payload: {payload}")
 
         # Check the presence of required fields
@@ -59,7 +70,7 @@ def verify_token(token: str) -> Dict:
             logging.error(f"Token validation failed: Token expiry exceeds limit")
             raise credentials_exception
 
-        logging.debug(f"Token validation successful for user: {payload.get('sub')}")
+        logging.debug(f"Token validation successful for user: {payload['sub']}")
         return payload
     except JWTError as e:
         logging.error(f"JWT validation error: {e}")
