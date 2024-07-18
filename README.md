@@ -36,8 +36,7 @@ curl -X PUT "http://127.0.0.1:8000/quota" -H "Authorization: Bearer mysecureapik
     },
     {
         "limit": 500,
-        "scope": "feature",
-        "feature": "chatgpt-4"
+        "scope": "course"
     }
 ]'
 ```
