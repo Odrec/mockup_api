@@ -13,13 +13,6 @@
             "scope": "user"
         },
         {
-            "limit": 500,
-            "used": 50,
-            "type": "token",
-            "scope": "feature",
-            "feature": "chatgpt-4"
-        },
-        {
             "limit": 100,
             "used": 0,
             "scope": "course",
@@ -48,14 +41,6 @@
             "type": "token",
             "scope": "user",
             "feature": null,
-            "user_id": null
-        },
-        {
-            "limit": 500,
-            "used": 0,
-            "type": "token",
-            "scope": "feature",
-            "feature": "chatgpt-4",
             "user_id": null
         },
         {
