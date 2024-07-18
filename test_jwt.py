@@ -10,7 +10,7 @@ def create_jwt_token(username: str, name: str, course_id: str, role: str):
         "sub": username,
         "name": name,
         "iat": datetime.now(timezone.utc),
-        "exp": datetime.now(timezone.utc) + timedelta(minutes=30),  # Token valid for 30 seconds
+        "exp": datetime.now(timezone.utc) + timedelta(seconds=30),  # Token valid for 30 seconds
         "context": course_id,
         "context-role": role
     }
