@@ -14,17 +14,14 @@
         },
         {
             "limit": 100,
-            "used": 0,
             "scope": "course",
             "feature": null,
-            "user_id": null,
             "course_id": "course-123"
         },
         {
             "limit": 10,
             "scope": "course-user",
             "feature": null,
-            "user_id": null,
             "course_id": "course-123"
         },
         {
