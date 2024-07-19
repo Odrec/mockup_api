@@ -1,26 +1,20 @@
-import json
-from pathlib import Path
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
-DATA_PATH = Path("data/quotas.json")
+DATABASE_URL = "sqlite:///./quota.db"
 
+engine = create_engine(
+    DATABASE_URL, connect_args={"check_same_thread": False}
+)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-def read_data():
-    if DATA_PATH.exists():
-        with open(DATA_PATH, 'r') as f:
-            return json.load(f)
-    return {"quotas": []}
-
-
-def write_data(data):
-    with open(DATA_PATH, 'w') as f:
-        json.dump(data, f, indent=4)
+Base = declarative_base()
 
 
-def get_all_quotas():
-    return read_data()['quotas']
-
-
-def update_quotas(new_quotas):
-    data = read_data()
-    data['quotas'] = new_quotas
-    write_data(data)
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

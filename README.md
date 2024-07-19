@@ -27,7 +27,7 @@
 curl -X PUT "http://127.0.0.1:8000/quota" -H "Authorization: Bearer mysecureapikey" -H "Content-Type: application/json" -d '
 [
     {
-        "limit": 1000,
+        "limit": 100,
         "scope": "total"
     },
     {
@@ -36,7 +36,8 @@ curl -X PUT "http://127.0.0.1:8000/quota" -H "Authorization: Bearer mysecureapik
     },
     {
         "limit": 500,
-        "scope": "course"
+        "scope": "user",
+        "feature": "gpt-3"
     }
 ]'
 ```

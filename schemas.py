@@ -1,8 +1,22 @@
-from pydantic import BaseModel
-from typing import List, Optional, Dict, Literal, TypeAlias
+import enum
 
-QuotaScope: TypeAlias = Literal["user", "course", "course-user", "total"]
-ResetIntervalDefinition: TypeAlias = Literal["daily", "weekly", "monthly", "semester"]
+from pydantic import BaseModel
+from typing import List, Optional, Dict
+
+
+class ResetIntervalDefinition(enum.Enum):
+    daily = "daily"
+    weekly = "weekly"
+    monthly = "monthly"
+    semester = "semester"
+
+
+# Enum definitions
+class QuotaScope(enum.Enum):
+    user = "user"
+    course = "course"
+    course_user = "course-user"
+    total = "total"
 
 
 class QuotaDefinition(BaseModel):
