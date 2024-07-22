@@ -129,8 +129,16 @@ def get_course_member_quotas(db: Session, course_id: str) -> list[models.Quota]:
 
 
 def get_course_member_quota(db: Session, course_id: str, user_id: str) -> models.Quota:
-    return db.query(models.Quota).filter(
+    quota = db.query(models.Quota).filter(
         models.Quota.scope == schemas.QuotaScope.course_user,
         models.Quota.course_id == course_id,
         models.Quota.user_id == user_id
     ).first()
+
+    if not quota:
+        raise HTTPException(
+            status_code=404,
+            detail=f"User quota with scope=course-user not found"
+        )
+
+    return quota
