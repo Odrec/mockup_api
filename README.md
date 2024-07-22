@@ -46,11 +46,7 @@ curl -X PUT "http://127.0.0.1:8000/quota" -H "Authorization: Bearer mysecureapik
 
 ```curl -X GET "http://127.0.0.1:8000/quota/course/course-123" -H "Authorization: Bearer mysecureapikey"```
 
-5. Get Course Quota with User Quotas
-
-```curl -X GET "http://127.0.0.1:8000/quota/course/course-123?with_user_quotas=true" -H "Authorization: Bearer mysecureapikey"```
-
-6. Update Course Quota
+5. Update Course Quota
 
 ```
 curl -X PUT "http://127.0.0.1:8000/quota/course/course-123" -H "Authorization: Bearer mysecureapikey" -H "Content-Type: application/json" -d '
@@ -66,10 +62,10 @@ curl -X PUT "http://127.0.0.1:8000/quota/course/course-123" -H "Authorization: B
 ]'
 ```
 
-7. Get Quota for All Course Members
+6. Get Quota for All Course Members
 
 ```curl -X GET "http://127.0.0.1:8000/quota/course/course-123/user" -H "Authorization: Bearer mysecureapikey"```
 
-8. Get Quota for a Specific Course Member
+7. Get Quota for a Specific Course Member
 
 ```curl -X GET "http://127.0.0.1:8000/quota/course/course-123/user/user-456" -H "Authorization: Bearer mysecureapikey"```
