@@ -2,6 +2,7 @@ import os
 import logging
 from fastapi import FastAPI, Depends, Form
 from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from typing import List
 from sqlalchemy.orm import Session
 
@@ -22,6 +23,8 @@ with SessionLocal() as session:
 
 app = FastAPI()
 
+# Static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Endpoint to access the tool (simulates JWT token validation and session creation)
 @app.post("/", response_class=HTMLResponse)
