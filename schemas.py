@@ -1,6 +1,6 @@
 import enum
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional, Dict
 
 
@@ -49,3 +49,12 @@ class Metadata(BaseModel):
     description: Dict[str, str]
     title: Dict[str, str]
     supported_quotas: List[QuotaDefinition]
+
+
+class JWTPayload(BaseModel):
+    sub: str
+    name: str
+    iat: int
+    exp: int
+    context: Optional[str]
+    context_role: str = Field(alias="context-role")
