@@ -30,14 +30,14 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 @app.post("/", response_class=HTMLResponse)
 async def access_tool(token: str = Form()):
     logging.debug(f"Token received for tool access: {token}")
-    user = verify_token(token)
+    payload = verify_token(token)
     return f"""
     <html>
         <head>
             <title>KIWI-Tool</title>
         </head>
         <body>
-            <h1>Welcome to the tool, {user['name']}!</h1>
+            <h1>Welcome to the tool, {payload.name}!</h1>
         </body>
     </html>
     """

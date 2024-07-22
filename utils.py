@@ -4,17 +4,20 @@ from jose import JWTError, jwt
 import logging
 import os
 from dotenv import load_dotenv
+from pydantic import ValidationError
+
+from schemas import JWTPayload
 
 load_dotenv()
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 API_KEY = os.getenv("API_KEY")
-SUPPORTED_ALGORITHMS = set(os.getenv("SUPPORTED_ALGORITHMS", "").split(','))
+SUPPORTED_ALGORITHMS = list(os.getenv("SUPPORTED_ALGORITHMS", "").split(','))
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 
-def verify_token(token: str) -> Dict:
+def verify_token(token: str) -> JWTPayload:
     credentials_exception = HTTPException(
         status_code=403, detail="Could not validate credentials"
     )
@@ -25,52 +28,23 @@ def verify_token(token: str) -> Dict:
         header = jwt.get_unverified_header(token)
         logging.debug(f"JWT header: {header}")
 
-        algorithm = header.get("alg")
-
-        if algorithm not in SUPPORTED_ALGORITHMS:
-            logging.error(f"Unsupported signing algorithm: {algorithm}")
-            raise credentials_exception
-
-        # Decode the JWT payload
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[algorithm])
+        # Decode the JWT payload#
+        payload = jwt.decode(token, SECRET_KEY, algorithms=SUPPORTED_ALGORITHMS)
         logging.debug(f"Decoded payload: {payload}")
 
-        # Check the presence of required fields
-        if not required_fields.issubset(payload.keys()):
-            logging.error(f"Token validation failed: Missing required fields")
-            raise credentials_exception
-
-        # Validate specific fields
-        if not isinstance(payload.get("sub"), str):
-            logging.error(f"Token validation failed: 'sub' is not a string")
-            raise credentials_exception
-
-        if not isinstance(payload.get("name"), str):
-            logging.error(f"Token validation failed: 'name' is not a string")
-            raise credentials_exception
-
-        if not isinstance(payload.get("iat"), int):
-            logging.error(f"Token validation failed: 'iat' is not an integer")
-            raise credentials_exception
-
-        if not isinstance(payload.get("exp"), int):
-            logging.error(f"Token validation failed: 'exp' is not an integer")
-            raise credentials_exception
-
-        if "context" in payload and not isinstance(payload.get("context"), str):
-            logging.error(f"Token validation failed: 'context' is not a string")
-            raise credentials_exception
-
-        if not isinstance(payload.get("context-role"), str):
-            logging.error(f"Token validation failed: 'context-role' is not a string")
+        # Validate required fields
+        try:
+            payload = JWTPayload(**payload)
+        except ValidationError as e:
+            logging.error(e.errors())
             raise credentials_exception
 
         # Ensure the token is extremely short-lived
-        if payload.get("exp") - payload.get("iat") > 30:
+        if payload.exp - payload.iat > 30:
             logging.error(f"Token validation failed: Token expiry exceeds limit")
             raise credentials_exception
 
-        logging.debug(f"Token validation successful for user: {payload['sub']}")
+        logging.debug(f"Token validation successful for user: {payload.sub}")
         return payload
     except JWTError as e:
         logging.error(f"JWT validation error: {e}")
