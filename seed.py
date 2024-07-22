@@ -99,7 +99,7 @@ def seed_data(db: Session):
         ),
 
         Quota(
-            limit=500,
+            limit=10000,
             used=50,
             type='number',
             scope=QuotaScope.total,
