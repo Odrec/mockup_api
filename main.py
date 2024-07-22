@@ -41,7 +41,7 @@ async def access_tool(token: str = Form()):
 
 
 # Endpoint to get metadata (API Key protected)
-@app.get("/metadata", response_model=Metadata, dependencies=[Depends(verify_api_key)])
+@app.get("/metadata", response_model=Metadata, response_model_exclude_none=True, dependencies=[Depends(verify_api_key)])
 async def get_metadata(db: Session = Depends(get_db)):
     base_url = os.getenv("HOST_URL")  # Read the environment variable for host URL
     quota_definitions_objects = crud.get_quota_definitions(db)
@@ -85,7 +85,7 @@ def validate_quota(quota: models.Quota):
 
 
 # Endpoint to get quotas (API Key protected)
-@app.get("/quota", response_model=List[QuotaGet], dependencies=[Depends(verify_api_key)])
+@app.get("/quota", response_model=List[QuotaGet], response_model_exclude_none=True, dependencies=[Depends(verify_api_key)])
 async def get_quotas(db: Session = Depends(get_db)):
     quotas = crud.get_global_quotas(db)
     validated_quotas = [validate_quota(q) for q in quotas]
@@ -93,7 +93,7 @@ async def get_quotas(db: Session = Depends(get_db)):
 
 
 # Endpoint to update quotas (API Key protected)
-@app.put("/quota", dependencies=[Depends(verify_api_key)])
+@app.put("/quota", response_model_exclude_none=True, dependencies=[Depends(verify_api_key)])
 async def put_quotas(quotas: List[QuotaUpdate], db: Session = Depends(get_db)):
     # Update passed quotas
     for quota in quotas:
@@ -105,7 +105,7 @@ async def put_quotas(quotas: List[QuotaUpdate], db: Session = Depends(get_db)):
 
 
 # Endpoint to get quota for a specific course with user quotas option (API Key protected)
-@app.get("/quota/course/{course_id}", response_model=List[QuotaGet], dependencies=[Depends(verify_api_key)])
+@app.get("/quota/course/{course_id}", response_model_exclude_none=True, response_model=List[QuotaGet], dependencies=[Depends(verify_api_key)])
 async def get_course_quota(course_id: str, db: Session = Depends(get_db)):
     quotas = crud.get_course_quotas(db, course_id)
     validated_quotas = [validate_quota(q) for q in quotas]
@@ -113,7 +113,7 @@ async def get_course_quota(course_id: str, db: Session = Depends(get_db)):
 
 
 # Endpoint to update quota for a course and course members (API Key protected)
-@app.put("/quota/course/{course_id}", dependencies=[Depends(verify_api_key)])
+@app.put("/quota/course/{course_id}", response_model_exclude_none=True, dependencies=[Depends(verify_api_key)])
 async def put_course_quota(course_id: str, quotas: List[QuotaUpdate], db: Session = Depends(get_db)):
     for quota in quotas:
         crud.update_or_create_course_quota(db, course_id, quota)
@@ -124,7 +124,7 @@ async def put_course_quota(course_id: str, quotas: List[QuotaUpdate], db: Sessio
 
 
 # Endpoint to get quota for all course members (API Key protected)
-@app.get("/quota/course/{course_id}/user", response_model=List[QuotaGet], dependencies=[Depends(verify_api_key)])
+@app.get("/quota/course/{course_id}/user", response_model_exclude_none=True, response_model=List[QuotaGet], dependencies=[Depends(verify_api_key)])
 async def get_course_member_quotas(course_id: str, db: Session = Depends(get_db)):
     quotas = crud.get_course_quotas(db, course_id)
     validated_quotas = [validate_quota(q) for q in quotas]
@@ -132,7 +132,7 @@ async def get_course_member_quotas(course_id: str, db: Session = Depends(get_db)
 
 
 # Endpoint to get quota for a specific course member (API Key protected)
-@app.get("/quota/course/{course_id}/user/{user_id}", response_model=QuotaGet, dependencies=[Depends(verify_api_key)])
+@app.get("/quota/course/{course_id}/user/{user_id}", response_model_exclude_none=True, response_model=QuotaGet, dependencies=[Depends(verify_api_key)])
 async def get_course_member_quota(course_id: str, user_id: str, db: Session = Depends(get_db)):
     quota = crud.get_course_member_quota(db, course_id, user_id)
     return validate_quota(quota)
