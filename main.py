@@ -61,8 +61,8 @@ async def get_metadata(db: Session = Depends(get_db)):
 
     return {
         "tool_url": f"{base_url}",
-        "quota_url": f"{base_url}/api/quota",
-        "image_url": f"{base_url}/static/tool.png",
+        "quota_url": f"{base_url}/quota",
+        "image_url": f"{base_url}/static/kiwi.png",
         "description": {
             "de-DE": "Beschreibung für ein Test-Tool",
             "en-GB": "Description for a test tool"
