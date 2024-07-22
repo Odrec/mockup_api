@@ -2,6 +2,7 @@ import os
 import logging
 from fastapi import FastAPI, Depends, Form
 from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from typing import List
 from sqlalchemy.orm import Session
 
@@ -22,6 +23,8 @@ with SessionLocal() as session:
 
 app = FastAPI()
 
+# Static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Endpoint to access the tool (simulates JWT token validation and session creation)
 @app.post("/", response_class=HTMLResponse)
@@ -58,8 +61,8 @@ async def get_metadata(db: Session = Depends(get_db)):
 
     return {
         "tool_url": f"{base_url}",
-        "quota_url": f"{base_url}/api/quota",
-        "image_url": f"{base_url}/static/tool.png",
+        "quota_url": f"{base_url}/quota",
+        "image_url": f"{base_url}/static/kiwi.png",
         "description": {
             "de-DE": "Beschreibung für ein Test-Tool",
             "en-GB": "Description for a test tool"
