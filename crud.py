@@ -29,7 +29,7 @@ def get_global_quotas(db: Session) -> list[models.Quota]:
     ).all()
 
 
-def check_quota_defintion(db: Session, quota: schemas.QuotaUpdate) -> models.QuotaDefinition:
+def check_quota_definition(db: Session, quota: schemas.QuotaUpdate) -> models.QuotaDefinition:
     quota_definition = db.query(models.QuotaDefinition).filter(
         models.QuotaDefinition.scope == quota.scope,
         models.QuotaDefinition.feature == quota.feature
@@ -46,11 +46,10 @@ def check_quota_defintion(db: Session, quota: schemas.QuotaUpdate) -> models.Quo
 
 def update_or_create_global_quota(db: Session, global_quota: schemas.QuotaUpdate) -> models.Quota:
     if global_quota.scope not in GLOBAL_SCOPES:
-        print(global_quota.scope)
         raise HTTPException(status_code=400, detail="Supported global scopes: " + ', '.join([s.value for s in GLOBAL_SCOPES]))
 
     # Check if the quota definition exists
-    quota_definition = check_quota_defintion(db, global_quota)
+    quota_definition = check_quota_definition(db, global_quota)
 
     db_quota = db.query(models.Quota).filter(
         models.Quota.scope == global_quota.scope,
@@ -91,7 +90,7 @@ def update_or_create_course_quota(db: Session, course_id: str, course_quota: sch
         raise HTTPException(status_code=400, detail="Supported course scopes: " + ', '.join([s.value for s in COURSE_SCOPES]))
 
     # Check if the quota definition exists
-    quota_definition = check_quota_defintion(db, course_quota)
+    quota_definition = check_quota_definition(db, course_quota)
 
     db_quota = db.query(models.Quota).filter(
         models.Quota.scope == course_quota.scope,
