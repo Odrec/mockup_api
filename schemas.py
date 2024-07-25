@@ -54,7 +54,7 @@ class Metadata(BaseModel):
 class JWTPayload(BaseModel):
     sub: str
     name: str
-    iat: int
-    exp: int
+    iat: float
+    exp: float
     context: Optional[str]
     context_role: str = Field(alias="context-role")
