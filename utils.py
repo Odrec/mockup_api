@@ -1,5 +1,5 @@
-from typing import Dict, Optional
-from fastapi import HTTPException, Header
+from fastapi import HTTPException, Security
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
 import logging
 import os
@@ -51,8 +51,8 @@ def verify_token(token: str) -> JWTPayload:
         raise credentials_exception
 
 
-def verify_api_key(authorization: Optional[str] = Header(None)):
+def verify_api_key(authorization: HTTPAuthorizationCredentials = Security(HTTPBearer(scheme_name="API Key"))):
     if not authorization:
         raise HTTPException(status_code=403, detail="Missing API Key")
-    if authorization != f'Bearer {API_KEY}':
+    if authorization.scheme != 'Bearer' or authorization.credentials != API_KEY:
         raise HTTPException(status_code=403, detail="Invalid API Key")
